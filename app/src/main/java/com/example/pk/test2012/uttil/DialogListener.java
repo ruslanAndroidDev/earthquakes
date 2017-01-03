@@ -1,4 +1,4 @@
-package com.example.pk.test2012;
+package com.example.pk.test2012.uttil;
 
 /**
  * Created by pk on 29.12.2016.
@@ -10,6 +10,6 @@ public interface DialogListener {
     }
 
     interface SortDialogListener {
-        void OnSortChange(String newRequestUrl);
+        void OnSortChange(int flag);
     }
 }

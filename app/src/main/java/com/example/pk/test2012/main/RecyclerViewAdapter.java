@@ -1,4 +1,4 @@
-package com.example.pk.test2012;
+package com.example.pk.test2012.main;
 
 import android.content.Context;
 import android.graphics.drawable.GradientDrawable;
@@ -6,10 +6,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
+import com.example.pk.test2012.EarthQuake;
+import com.example.pk.test2012.R;
 import com.example.pk.test2012.uttil.Utiil;
 
 import java.text.DecimalFormat;
@@ -25,6 +25,10 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     Context context;
     private static final String LOCATION_SEPERATOR = " of ";
     RecyclerEvent.LongClickListener longClickListener;
+    SimpleDateFormat timeFormat;
+    SimpleDateFormat dateFormat;
+    DecimalFormat decimalFormat;
+    Date dateObj;
 
     public RecyclerViewAdapter(ArrayList<EarthQuake> earthQuakesdata, Context context, RecyclerEvent.LongClickListener longClickListener) {
         this.context = context;
@@ -52,17 +56,18 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
+            timeFormat = new SimpleDateFormat("HH:mm");
+            dateFormat = new SimpleDateFormat("dd.MM.yyyy");
+            decimalFormat = new DecimalFormat("0.0");
         }
 
         @Override
         public void onClick(final View v) {
-//            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(earthQuakesdata.get(getAdapterPosition()).getUrl()));
-//            context.startActivity(intent);
         }
 
         @Override
         public boolean onLongClick(View v) {
-            longClickListener.onLongClick(getAdapterPosition());
+            longClickListener.onLongClickRecyclerView(getAdapterPosition());
             return true;
         }
 
@@ -76,13 +81,14 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         return myViewHolder;
     }
 
+
     @Override
     public void onBindViewHolder(final MyViewHolder holder, final int position) {
-        final TextView location_offsetTv = holder.location_offsetTv;
-        final TextView primary_locationTv = holder.primary_locationTv;
-        final TextView magnitude = holder.magnitude;
-        final TextView date = holder.date;
-        final TextView time = holder.time;
+        TextView location_offsetTv = holder.location_offsetTv;
+        TextView primary_locationTv = holder.primary_locationTv;
+        TextView magnitude = holder.magnitude;
+        TextView date = holder.date;
+        TextView time = holder.time;
         String locationOfset;
         String primary_location;
 
@@ -98,14 +104,10 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
         location_offsetTv.setText(locationOfset);
         primary_locationTv.setText(primary_location);
-        DecimalFormat decimalFormat = new DecimalFormat("0.0");
         magnitude.setText(decimalFormat.format(earthQuakesdata.get(position).getMagnitude()));
 
-        Date dateObj = new Date(earthQuakesdata.get(position).getTime());
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
+        dateObj = new Date(earthQuakesdata.get(position).getTime());
         date.setText(dateFormat.format(dateObj));
-
-        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
         time.setText(timeFormat.format(dateObj));
 
         GradientDrawable magnitudeCircle = (GradientDrawable) magnitude.getBackground();

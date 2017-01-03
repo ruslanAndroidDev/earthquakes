@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.RadioGroup;
 
 import com.example.pk.test2012.uttil.Constants;
+import com.example.pk.test2012.uttil.DialogListener;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -102,6 +103,6 @@ public class SortDialogFragment extends DialogFragment implements View.OnClickLi
         ed.putString(Constants.SHAREDPREF_KEY_URL, url);
         ed.commit();
         dismiss();
-        sortlistener.OnSortChange(url);
+        sortlistener.OnSortChange(0);
     }
 }

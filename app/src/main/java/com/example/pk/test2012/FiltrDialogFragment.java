@@ -8,12 +8,16 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.RadioGroup;
 
 import com.example.pk.test2012.uttil.Constants;
+import com.example.pk.test2012.uttil.DialogListener;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -26,9 +30,9 @@ public class FiltrDialogFragment extends android.app.DialogFragment implements V
     RadioGroup typeRG;
     RadioGroup filtrRG;
     CardView applyCard;
-    DialogListener listener;
-    public FiltrDialogFragment(DialogListener dialogListener){
-        listener = dialogListener;
+    DialogListener.FiltrDialogListener listener;
+    public FiltrDialogFragment(DialogListener.FiltrDialogListener filtrdialogListener){
+        listener = filtrdialogListener;
     }
 
     @Override
@@ -39,6 +43,16 @@ public class FiltrDialogFragment extends android.app.DialogFragment implements V
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        Window window = getDialog().getWindow();
+
+        // set "origin" to top left corner, so to speak
+        window.setGravity(Gravity.BOTTOM);
+
+        // after that, setting values for x and y works "naturally"
+        WindowManager.LayoutParams params = window.getAttributes();
+        params.x = 300;
+        params.y = 500;
+        window.setAttributes(params);
         getDialog().getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         View v = inflater.inflate(R.layout.filter_popup, null);
         typeRG = (RadioGroup) v.findViewById(R.id.radioType);

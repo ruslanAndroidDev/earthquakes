@@ -1,4 +1,6 @@
-package com.example.pk.test2012;
+package com.example.pk.test2012.main;
+
+import com.example.pk.test2012.EarthQuake;
 
 import java.util.ArrayList;
 
@@ -12,4 +14,9 @@ public interface IMainView {
 
     void showDialogFilterSetting();
     void openMapActivity();
+
+    void showDialogSortSetting();
+
+    void showBottomTab();
+    void hideBottomTab();
 }

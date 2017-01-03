@@ -1,4 +1,6 @@
-package com.example.pk.test2012;
+package com.example.pk.test2012.uttil;
+
+import com.example.pk.test2012.EarthQuake;
 
 import java.util.ArrayList;
 

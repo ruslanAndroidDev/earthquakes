@@ -1,4 +1,4 @@
-package com.example.pk.test2012;
+package com.example.pk.test2012.main;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -9,7 +9,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -17,7 +16,13 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.example.pk.test2012.EarthQuake;
+import com.example.pk.test2012.FiltrDialogFragment;
+import com.example.pk.test2012.MapActivity;
+import com.example.pk.test2012.R;
+import com.example.pk.test2012.SortDialogFragment;
 import com.example.pk.test2012.uttil.Constants;
+import com.example.pk.test2012.uttil.DialogListener;
 import com.example.pk.test2012.uttil.Utiil;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -34,24 +39,26 @@ import rm.com.longpresspopup.LongPressPopupBuilder;
 import rm.com.longpresspopup.PopupInflaterListener;
 import rm.com.longpresspopup.PopupStateListener;
 
-public class MainActivity extends AppCompatActivity implements IMainView, RecyclerEvent.LongClickListener, View.OnClickListener, DialogListener {
+public class MainActivity extends AppCompatActivity implements IMainView, RecyclerEvent.LongClickListener, View.OnClickListener, DialogListener.FiltrDialogListener, DialogListener.SortDialogListener, PopupInflaterListener, PopupStateListener {
     RecyclerView recyclerView;
     LongPressPopup mapPopup;
     ArrayList<EarthQuake> listItem;
-    int popup_position;
     SupportMapFragment mapFragment;
-    GoogleMap gMap;
     MainPresenterImpl presenter;
     LinearLayout bottomTab;
     ImageView mapBtn;
 
     CardView cardSort;
     CardView cardFiltr;
+    int popup_position;
 
-    boolean animationStart;
-    FiltrDialogFragment dialog;
+    boolean isAnimationWorking;
+
+    FiltrDialogFragment dialogFiltr;
+    SortDialogFragment dialogSort;
+
     SharedPreferences sPref;
-    String url;
+    String requestUrl;
     LoadingView loadingView;
     Animation anim_out;
     Animation anim_in;
@@ -60,44 +67,59 @@ public class MainActivity extends AppCompatActivity implements IMainView, Recycl
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        sPref = getPreferences(MODE_PRIVATE);
-        url = sPref.getString(Constants.SHAREDPREF_KEY_URL, Constants.DEFAULT_URL_REQUEST);
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                sPref = getPreferences(MODE_PRIVATE);
+                requestUrl = sPref.getString(Constants.SHAREDPREF_KEY_URL, Constants.DEFAULT_URL_REQUEST);
+            }
+        });
+        t.start();
         anim_in = AnimationUtils.loadAnimation(this, R.anim.translate_in);
         anim_out = AnimationUtils.loadAnimation(this, R.anim.translate_out);
-        dialog = new FiltrDialogFragment(this);
+
+        dialogFiltr = new FiltrDialogFragment(this);
+        dialogSort = new SortDialogFragment(this);
+
         loadingView = (LoadingView) findViewById(R.id.loadingView);
+
+
         cardSort = (CardView) findViewById(R.id.card_sort);
         cardSort.setOnClickListener(this);
+
         cardFiltr = (CardView) findViewById(R.id.card_filtr);
         cardFiltr.setOnClickListener(this);
+
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
         bottomTab = (LinearLayout) findViewById(R.id.bottom_tab);
-        bottomTab.setOnClickListener(this);
+
         mapBtn = (ImageView) findViewById(R.id.map_btn);
         mapBtn.setOnClickListener(this);
+        loadingView.start();
+        presenter = new MainPresenterImpl(this);
+        presenter.loadData(requestUrl);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        loadingView.start();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        presenter = new MainPresenterImpl(this);
-        presenter.loadData(url);
         anim_in.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
-                animationStart = true;
+                isAnimationWorking = true;
             }
 
             @Override
             public void onAnimationEnd(Animation animation) {
                 bottomTab.setVisibility(View.VISIBLE);
-                animationStart = false;
+                isAnimationWorking = false;
             }
 
             @Override
@@ -108,13 +130,13 @@ public class MainActivity extends AppCompatActivity implements IMainView, Recycl
         anim_out.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
-                animationStart = true;
+                isAnimationWorking = true;
             }
 
             @Override
             public void onAnimationEnd(Animation animation) {
                 bottomTab.setVisibility(View.GONE);
-                animationStart = false;
+                isAnimationWorking = false;
             }
 
             @Override
@@ -126,22 +148,30 @@ public class MainActivity extends AppCompatActivity implements IMainView, Recycl
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                Log.d("tag", dy + "");
                 if (dy > 0) {
-                    if ((bottomTab.getVisibility() == View.VISIBLE) & (animationStart == false)) {
-                        bottomTab.startAnimation(anim_out);
+                    if ((bottomTab.getVisibility() == View.VISIBLE) & (isAnimationWorking == false)) {
+                        hideBottomTab();
                     }
                 } else {
-                    if ((bottomTab.getVisibility() == View.GONE) & (animationStart == false)) {
-                        bottomTab.startAnimation(anim_in);
+                    if ((bottomTab.getVisibility() == View.GONE) & (isAnimationWorking == false)) {
+                        showBottomTab();
                     }
                 }
             }
         });
     }
 
+    public void showBottomTab() {
+        bottomTab.startAnimation(anim_in);
+    }
+
+    public void hideBottomTab() {
+        bottomTab.startAnimation(anim_out);
+    }
+
+
     @Override
-    public void onLongClick(int position) {
+    public void onLongClickRecyclerView(int position) {
         presenter.itemLongClick(position);
         popup_position = position;
     }
@@ -151,75 +181,44 @@ public class MainActivity extends AppCompatActivity implements IMainView, Recycl
         loadingView.stop();
         loadingView.setVisibility(View.GONE);
         listItem = data;
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(new RecyclerViewAdapter(data, this, this));
+        bottomTab.setVisibility(View.VISIBLE);
     }
 
-    private LongPressPopup createPopup() {
-        LongPressPopupBuilder builder = new LongPressPopupBuilder(this);
-        builder.setPopupView(R.layout.popup, new PopupInflaterListener() {
-            @Override
-            public void onViewInflated(@Nullable String popupTag, View root) {
-                mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                        .findFragmentById(R.id.map);
-            }
-        });
-        builder.setPopupListener(new PopupStateListener() {
-            @Override
-            public void onPopupShow(@Nullable String popupTag) {
-                if (gMap == null) {
-                    mapFragment.getMapAsync(new OnMapReadyCallback() {
-                        @Override
-                        public void onMapReady(GoogleMap googleMap) {
-                            gMap = googleMap;
-                            gMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-                            showPopupMap(popup_position);
-                        }
-                    });
-                } else {
-                    showPopupMap(popup_position);
-                }
-            }
-
-            @Override
-            public void onPopupDismiss(@Nullable String popupTag) {
-                gMap.clear();
-            }
-        });
-        builder.setDismissOnLongPressStop(false)
+    private void createMapPopup() {
+        mapPopup = new LongPressPopupBuilder(this)
+                .setPopupView(R.layout.popup, this)
+                .setPopupListener(this)
+                .setDismissOnLongPressStop(false)
                 .setDismissOnTouchOutside(true)
                 .setDismissOnBackPressed(true)
-                .setTarget(new TextView(this));
-        return mapPopup = builder.build();
+                .setTarget(new TextView(this))
+                .build();
     }
 
     @Override
     public void showPopupMap(int itemPosition) {
         if (mapPopup == null) {
-            createPopup();
+            createMapPopup();
         }
         mapPopup.showNow();
-        EarthQuake currentEarthQuake = listItem.get(itemPosition);
-        LatLng coordinates = new LatLng(currentEarthQuake.getLatitude(), currentEarthQuake.getLongitude());
-        int circleColor = Utiil.calculateCircleColor(this, currentEarthQuake.getMagnitude());
-        gMap.addCircle(new CircleOptions().center(coordinates).radius(14000).fillColor(circleColor).strokeColor(Color.TRANSPARENT));
-        gMap.addCircle(new CircleOptions().center(coordinates)
-                .radius(24000).strokeColor(circleColor).strokeWidth(10));
-        gMap.moveCamera(CameraUpdateFactory.newLatLng(coordinates));
-        gMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 7));
-
-    }
-
-    @Override
-    public void showDialogFilterSetting() {
-        dialog.show(getFragmentManager(), "dialog");
     }
 
     @Override
     public void openMapActivity() {
         Intent intent = new Intent(this, MapActivity.class);
-        intent.putExtra("url", url);
+        intent.putExtra("url", requestUrl);
         startActivity(intent);
+    }
+
+    @Override
+    public void showDialogFilterSetting() {
+        dialogFiltr.show(getFragmentManager(), "dialog");
+    }
+
+    @Override
+    public void showDialogSortSetting() {
+        dialogSort.show(getFragmentManager(), "dialogSort");
     }
 
     @Override
@@ -227,18 +226,58 @@ public class MainActivity extends AppCompatActivity implements IMainView, Recycl
         if (v.getId() == R.id.map_btn) {
             presenter.mapBtnClick();
         } else if (v.getId() == R.id.card_filtr) {
-            Log.d("tag", "clickOnCardFiltr");
             presenter.filterCardClick();
         } else if (v.getId() == R.id.card_sort) {
-
+            presenter.sortCardClick();
         }
     }
 
     @Override
     public void OnFiltrChange(String newRequestUrl) {
-        if (newRequestUrl != url) {
+        if (newRequestUrl != requestUrl) {
             presenter.loadData(newRequestUrl);
-            url = newRequestUrl;
+            requestUrl = newRequestUrl;
         }
+        showBottomTab();
+    }
+
+    @Override
+    public void OnSortChange(int flag) {
+        presenter.changeSortSetting(flag);
+        showBottomTab();
+    }
+
+    @Override
+    public void onViewInflated(@Nullable String popupTag, View root) {
+        mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+    }
+
+    GoogleMap gMap;
+
+    @Override
+    public void onPopupShow(@Nullable String popupTag) {
+        mapFragment.getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(GoogleMap googleMap) {
+                gMap = googleMap;
+                googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                EarthQuake currentEarthQuake = listItem.get(popup_position);
+                LatLng coordinates = new LatLng(currentEarthQuake.getLatitude(), currentEarthQuake.getLongitude());
+                int circleColor = Utiil.calculateCircleColor(getApplicationContext(), currentEarthQuake.getMagnitude());
+                //internal circle
+                googleMap.addCircle(new CircleOptions().center(coordinates).radius(14000).fillColor(circleColor).strokeColor(Color.TRANSPARENT));
+                //external circle
+                googleMap.addCircle(new CircleOptions().center(coordinates)
+                        .radius(24000).strokeColor(circleColor).strokeWidth(10));
+                googleMap.moveCamera(CameraUpdateFactory.newLatLng(coordinates));
+                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 7));
+            }
+        });
+    }
+
+    @Override
+    public void onPopupDismiss(@Nullable String popupTag) {
+        gMap.clear();
     }
 }

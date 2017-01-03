@@ -5,21 +5,16 @@ package com.example.pk.test2012;
  */
 public class EarthQuake {
     private String location;
-    private String url;
     private double magnitude;
     private long time;
     private double longitude;
     private double latitude;
 
-    public String getUrl() {
-        return url;
-    }
 
-    public EarthQuake(String location, double magnitude, long time, String url,double longitude,double latitude) {
+    public EarthQuake(String location, double magnitude, long time,double longitude,double latitude) {
         this.location = location;
         this.magnitude = magnitude;
         this.time = time;
-        this.url = url;
         this.latitude = latitude;
         this.longitude = longitude;
     }

@@ -1,7 +1,8 @@
-package com.example.pk.test2012;
+package com.example.pk.test2012.main;
 
-import com.example.pk.test2012.uttil.Constants;
+import com.example.pk.test2012.EarthQuake;
 import com.example.pk.test2012.uttil.DataHelper;
+import com.example.pk.test2012.uttil.DataLoadListener;
 
 import java.util.ArrayList;
 
@@ -33,6 +34,18 @@ public class MainPresenterImpl implements DataLoadListener, MainPresenter {
     @Override
     public void filterCardClick() {
         mainView.showDialogFilterSetting();
+        mainView.hideBottomTab();
+    }
+
+    @Override
+    public void sortCardClick() {
+        mainView.showDialogSortSetting();
+        mainView.hideBottomTab();
+    }
+
+    @Override
+    public void changeSortSetting(int flag) {
+
     }
 
     @Override

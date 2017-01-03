@@ -4,7 +4,6 @@ package com.example.pk.test2012.uttil;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.example.pk.test2012.DataLoadListener;
 import com.example.pk.test2012.EarthQuake;
 
 import org.json.JSONArray;
@@ -29,6 +28,13 @@ class ParseTask extends AsyncTask<String, Void, ArrayList<EarthQuake>> {
     String resultJson = "";
     URL url;
     DataLoadListener listener;
+    String PROPETRIES = "properties";
+    String GEOMETRY = "geometry";
+    String COORDINATES = "coordinates";
+    String MAGNITUDE = "mag";
+    String PLACE = "place";
+    String FEATURES = "features";
+    String TIME = "time";
 
     public ParseTask(DataLoadListener listener) {
         this.listener = listener;
@@ -36,7 +42,7 @@ class ParseTask extends AsyncTask<String, Void, ArrayList<EarthQuake>> {
 
     @Override
     protected ArrayList<EarthQuake> doInBackground(String... params) {
-
+        Log.d("tag,", getJsonFromUrl(params[0]));
         return parseJson(getJsonFromUrl(params[0]));
 
     }
@@ -65,7 +71,11 @@ class ParseTask extends AsyncTask<String, Void, ArrayList<EarthQuake>> {
             }
             resultJson = buffer.toString();
             Log.d("tag", "json " + resultJson);
-
+            reader.close();
+            inputStream.close();
+            urlConnection.disconnect();
+            reader = null;
+            buffer = null;
         } catch (Exception e) {
             e.printStackTrace();
             Log.d("tag", e.getMessage() + "\n ERROR");
@@ -80,18 +90,25 @@ class ParseTask extends AsyncTask<String, Void, ArrayList<EarthQuake>> {
         ArrayList<EarthQuake> arrayList = new ArrayList<>();
         try {
             dataJsonObj = new JSONObject(json);
-            features = dataJsonObj.getJSONArray("features");
+            features = dataJsonObj.getJSONArray(FEATURES);
+            JSONObject item;
+            JSONObject itemProperties;
+            JSONObject itemGeometry;
+            JSONArray coordinates;
+            double longitude;
+            double latitude;
             for (int i = 0; i < features.length(); i++) {
-                JSONObject item = features.getJSONObject(i);
-                JSONObject itemProperties = item.getJSONObject("properties");
-                JSONObject itemGeometry = item.getJSONObject("geometry");
-                JSONArray coordinates = itemGeometry.getJSONArray("coordinates");
-                double longitude = coordinates.getDouble(0);
-                double latitude = coordinates.getDouble(1);
-                EarthQuake earthQuake = new EarthQuake(itemProperties.getString("place"), itemProperties.getDouble("mag"), itemProperties.getLong("time"), itemProperties.getString("url"), latitude, longitude);
-                arrayList.add(earthQuake);
+                item = features.getJSONObject(i);
+                itemProperties = item.getJSONObject(PROPETRIES);
+                itemGeometry = item.getJSONObject(GEOMETRY);
+                coordinates = itemGeometry.getJSONArray(COORDINATES);
+                longitude = coordinates.getDouble(0);
+                latitude = coordinates.getDouble(1);
+                try {
+                    arrayList.add(new EarthQuake(itemProperties.getString(PLACE), itemProperties.getLong(MAGNITUDE), itemProperties.getLong(TIME), latitude, longitude));
+                } catch (JSONException es) {
+                }
             }
-            Log.d("tag", "arrayList.size()" + arrayList.size());
         } catch (JSONException e1) {
             e1.printStackTrace();
             Log.d("tag", e1.getMessage());
