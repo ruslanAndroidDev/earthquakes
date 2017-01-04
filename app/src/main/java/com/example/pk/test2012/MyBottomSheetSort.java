@@ -1,12 +1,10 @@
 package com.example.pk.test2012;
 
-import android.app.Dialog;
-import android.app.DialogFragment;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.support.v7.widget.CardView;
+import android.support.annotation.Nullable;
+import android.support.design.widget.BottomSheetDialogFragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,51 +17,41 @@ import com.example.pk.test2012.uttil.DialogListener;
 import static android.content.Context.MODE_PRIVATE;
 
 /**
- * Created by pk on 28.12.2016.
+ * Created by pk on 04.01.2017.
  */
 
-public class SortDialogFragment extends DialogFragment implements View.OnClickListener {
-
+public class MyBottomSheetSort extends BottomSheetDialogFragment {
     RadioGroup typeRG;
     RadioGroup filtrRG;
-    CardView applyCard;
-    DialogListener.SortDialogListener sortlistener;
-    public SortDialogFragment(DialogListener.SortDialogListener dialogListener){
-        sortlistener = dialogListener;
+    DialogListener.SortDialogListener listener;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+    public MyBottomSheetSort(DialogListener.SortDialogListener sortdialogListener) {
+        listener = sortdialogListener;
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setStyle(DialogFragment.STYLE_NO_TITLE, R.style.MyCustomDialogStyle);
-    }
-
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        getDialog().getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        View v = inflater.inflate(R.layout.filter_popup, null);
+        View v = inflater.inflate(R.layout.filter_popup, container, false);
         typeRG = (RadioGroup) v.findViewById(R.id.radioType);
         filtrRG = (RadioGroup) v.findViewById(R.id.typeFiltr);
-        applyCard = (CardView) v.findViewById(R.id.cardApplay);
-        applyCard.setOnClickListener(this);
         SharedPreferences sPref = getActivity().getPreferences(MODE_PRIVATE);
         int type_id = sPref.getInt(Constants.SHAREDPREF_KEY_TYPE, Constants.DEFAULT_RADIO_BTN_CHECKED_TYPE);
         int filtrId = sPref.getInt(Constants.SHAREDPREF_KEY_FILTER, Constants.DEFAULT_RADIO_BTN_CHECKED_FILTER_ID);
         typeRG.check(type_id);
         filtrRG.check(filtrId);
-
         return v;
     }
 
-    @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        final Dialog dialog = super.onCreateDialog(savedInstanceState);
-        dialog.getWindow().getAttributes().windowAnimations = R.style.MyCustomDialogStyle;
-        return dialog;
-    }
 
     @Override
-    public void onClick(View v) {
+    public void onDismiss(DialogInterface dialog) {
+        super.onDismiss(dialog);
         int typeRGCheckedRadioButtonId = typeRG.getCheckedRadioButtonId();
         int typeFiltrId = filtrRG.getCheckedRadioButtonId();
         Log.d("tag", typeRGCheckedRadioButtonId + " typeRg," + typeFiltrId);
@@ -76,33 +64,32 @@ public class SortDialogFragment extends DialogFragment implements View.OnClickLi
             typeId = R.id.radio_btn_type_all;
             if (filtrRG.getCheckedRadioButtonId() == R.id.radio_btn_filtr_today) {
                 filtrId = R.id.radio_btn_filtr_today;
-                url = "http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson";
+                url = Constants.ALL_DAILY_URL_REQUEST;
 
             } else if (filtrRG.getCheckedRadioButtonId() == R.id.radio_btn_filtr_week) {
                 filtrId = R.id.radio_btn_filtr_week;
-                url = "http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson";
+                url = Constants.ALL_WEEK_URL_REQUEST;
             } else if (filtrRG.getCheckedRadioButtonId() == R.id.radio_btn_filtr_mounth) {
                 filtrId = R.id.radio_btn_filtr_mounth;
-                url = "http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson";
+                url = Constants.ALL_MONTH_URL_REQUEST;
             }
         } else if (typeRG.getCheckedRadioButtonId() == R.id.radio_btn_type_significant) {
             typeId = R.id.radio_btn_type_significant;
             if (filtrRG.getCheckedRadioButtonId() == R.id.radio_btn_filtr_today) {
                 filtrId = R.id.radio_btn_filtr_today;
-                url = "http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/significant_day.geojson";
+                url = Constants.SIGNIFICANT_DAILY_URL_REQUEST;
             } else if (filtrRG.getCheckedRadioButtonId() == R.id.radio_btn_filtr_week) {
                 filtrId = R.id.radio_btn_filtr_week;
-                url = "http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/significant_week.geojson";
+                url = Constants.SIGNIFICANT_WEEK_URL_REQUEST;
             } else if (filtrRG.getCheckedRadioButtonId() == R.id.radio_btn_filtr_mounth) {
                 filtrId = R.id.radio_btn_filtr_mounth;
-                url = "http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/significant_month.geojson";
+                url = Constants.SIGNIFICANT_MONTH_URL_REQUEST;
             }
         }
         ed.putInt(Constants.SHAREDPREF_KEY_TYPE, typeId);
         ed.putInt(Constants.SHAREDPREF_KEY_FILTER, filtrId);
         ed.putString(Constants.SHAREDPREF_KEY_URL, url);
         ed.commit();
-        dismiss();
-        sortlistener.OnSortChange(0);
+        listener.OnSortChange(0);
     }
 }

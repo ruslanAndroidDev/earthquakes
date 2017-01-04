@@ -133,31 +133,5 @@
             </RelativeLayout>
         </android.support.v7.widget.CardView>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            android:layout_below="@+id/rgroupFiltr"
-            android:layout_marginBottom="3dp"
-            android:orientation="horizontal">
-
-            <android.support.v7.widget.CardView
-                android:layout_width="wrap_content"
-                android:layout_height="60dp"
-                android:layout_marginLeft="5dp"
-                android:layout_marginRight="5dp"
-                android:layout_weight="1"
-                android:elevation="3dp"
-                android:id="@+id/cardApplay"
-                app:cardBackgroundColor="#43a047"
-                app:cardCornerRadius="10dp">
-
-                <ImageView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:src="@drawable/ic_done_white_48dp" />
-            </android.support.v7.widget.CardView>
-        </LinearLayout>
     </LinearLayout>
 </RelativeLayout>

@@ -40,6 +40,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        map.clear();
+    }
+
+    @Override
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
         map.setMapType(GoogleMap.MAP_TYPE_HYBRID);
@@ -54,7 +60,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         for (EarthQuake earthQuake : data) {
             LatLng coordinate = new LatLng(earthQuake.getLatitude(), earthQuake.getLongitude());
             int circleColor = Utiil.calculateCircleColor(this, earthQuake.getMagnitude());
-            int size = Utiil.calculateCircleSize(this, earthQuake.getMagnitude());
+            int size = Utiil.calculateCircleSize(earthQuake.getMagnitude());
             if (size == Constants.SIZE_MIN || size == Constants.SIZE_MEDIUM) {
                 circleInternal = new CircleOptions().center(coordinate).radius(earthQuake.getMagnitude() * 40000).fillColor(circleColor).strokeColor(Color.TRANSPARENT);
                 circleArray.add(circleInternal);

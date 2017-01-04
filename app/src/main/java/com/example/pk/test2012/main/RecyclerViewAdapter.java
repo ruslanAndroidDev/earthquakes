@@ -21,7 +21,7 @@ import java.util.Date;
  * Created by pk on 17.10.2016.
  */
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.MyViewHolder> {
-    ArrayList<EarthQuake> earthQuakesdata;
+    static ArrayList<EarthQuake> earthQuakesdata;
     Context context;
     private static final String LOCATION_SEPERATOR = " of ";
     RecyclerEvent.LongClickListener longClickListener;
@@ -36,7 +36,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         this.longClickListener = longClickListener;
     }
 
-    public class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
+    public class MyViewHolder extends RecyclerView.ViewHolder implements View.OnLongClickListener {
 
         TextView location_offsetTv;
         TextView primary_locationTv;
@@ -52,17 +52,10 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             this.magnitude = (TextView) itemView.findViewById(R.id.magnitude);
             this.date = (TextView) itemView.findViewById(R.id.date);
             this.time = (TextView) itemView.findViewById(R.id.time);
-
-
-            itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
             timeFormat = new SimpleDateFormat("HH:mm");
             dateFormat = new SimpleDateFormat("dd.MM.yyyy");
             decimalFormat = new DecimalFormat("0.0");
-        }
-
-        @Override
-        public void onClick(final View v) {
         }
 
         @Override

@@ -12,10 +12,10 @@ public interface IMainView {
 
     void showPopupMap(int itemPosition);
 
-    void showDialogFilterSetting();
+    void showBottomSheetFilter();
     void openMapActivity();
 
-    void showDialogSortSetting();
+    void showBottomSheetSort();
 
     void showBottomTab();
     void hideBottomTab();

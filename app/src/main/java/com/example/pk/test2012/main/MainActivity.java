@@ -17,10 +17,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.pk.test2012.EarthQuake;
-import com.example.pk.test2012.FiltrDialogFragment;
 import com.example.pk.test2012.MapActivity;
+import com.example.pk.test2012.MyBottomSheetFiltr;
 import com.example.pk.test2012.R;
-import com.example.pk.test2012.SortDialogFragment;
 import com.example.pk.test2012.uttil.Constants;
 import com.example.pk.test2012.uttil.DialogListener;
 import com.example.pk.test2012.uttil.Utiil;
@@ -41,27 +40,20 @@ import rm.com.longpresspopup.PopupStateListener;
 
 public class MainActivity extends AppCompatActivity implements IMainView, RecyclerEvent.LongClickListener, View.OnClickListener, DialogListener.FiltrDialogListener, DialogListener.SortDialogListener, PopupInflaterListener, PopupStateListener {
     RecyclerView recyclerView;
-    LongPressPopup mapPopup;
-    ArrayList<EarthQuake> listItem;
-    SupportMapFragment mapFragment;
     MainPresenterImpl presenter;
     LinearLayout bottomTab;
-    ImageView mapBtn;
+    ImageView toolbarMapBtn;
 
     CardView cardSort;
     CardView cardFiltr;
     int popup_position;
 
     boolean isAnimationWorking;
-
-    FiltrDialogFragment dialogFiltr;
-    SortDialogFragment dialogSort;
-
     SharedPreferences sPref;
-    String requestUrl;
     LoadingView loadingView;
-    Animation anim_out;
-    Animation anim_in;
+    Animation anim_out, anim_in;
+
+    String requestUrl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,18 +67,8 @@ public class MainActivity extends AppCompatActivity implements IMainView, Recycl
             }
         });
         t.start();
-        anim_in = AnimationUtils.loadAnimation(this, R.anim.translate_in);
-        anim_out = AnimationUtils.loadAnimation(this, R.anim.translate_out);
-
-        dialogFiltr = new FiltrDialogFragment(this);
-        dialogSort = new SortDialogFragment(this);
-
-        loadingView = (LoadingView) findViewById(R.id.loadingView);
-
-
         cardSort = (CardView) findViewById(R.id.card_sort);
         cardSort.setOnClickListener(this);
-
         cardFiltr = (CardView) findViewById(R.id.card_filtr);
         cardFiltr.setOnClickListener(this);
 
@@ -95,21 +77,31 @@ public class MainActivity extends AppCompatActivity implements IMainView, Recycl
 
         bottomTab = (LinearLayout) findViewById(R.id.bottom_tab);
 
-        mapBtn = (ImageView) findViewById(R.id.map_btn);
-        mapBtn.setOnClickListener(this);
+        toolbarMapBtn = (ImageView) findViewById(R.id.map_btn);
+        toolbarMapBtn.setOnClickListener(this);
+
+        loadingView = (LoadingView) findViewById(R.id.loadingView);
         loadingView.start();
+
         presenter = new MainPresenterImpl(this);
         presenter.loadData(requestUrl);
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-    }
-
-    @Override
     protected void onResume() {
         super.onResume();
+        anim_in = AnimationUtils.loadAnimation(this, R.anim.translate_in);
+        anim_out = AnimationUtils.loadAnimation(this, R.anim.translate_out);
+        recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                presenter.onScrolledRecyclerView(dy, bottomTab, isAnimationWorking);
+            }
+        });
+    }
+
+    public void showBottomTab() {
         anim_in.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
@@ -127,6 +119,11 @@ public class MainActivity extends AppCompatActivity implements IMainView, Recycl
 
             }
         });
+        bottomTab.startAnimation(anim_in);
+    }
+
+    public void hideBottomTab() {
+        bottomTab.startAnimation(anim_out);
         anim_out.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
@@ -144,29 +141,6 @@ public class MainActivity extends AppCompatActivity implements IMainView, Recycl
 
             }
         });
-        recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                if (dy > 0) {
-                    if ((bottomTab.getVisibility() == View.VISIBLE) & (isAnimationWorking == false)) {
-                        hideBottomTab();
-                    }
-                } else {
-                    if ((bottomTab.getVisibility() == View.GONE) & (isAnimationWorking == false)) {
-                        showBottomTab();
-                    }
-                }
-            }
-        });
-    }
-
-    public void showBottomTab() {
-        bottomTab.startAnimation(anim_in);
-    }
-
-    public void hideBottomTab() {
-        bottomTab.startAnimation(anim_out);
     }
 
 
@@ -179,11 +153,11 @@ public class MainActivity extends AppCompatActivity implements IMainView, Recycl
     @Override
     public void setItem(ArrayList<EarthQuake> data) {
         loadingView.stop();
-        loadingView.setVisibility(View.GONE);
-        listItem = data;
         recyclerView.setAdapter(new RecyclerViewAdapter(data, this, this));
-        bottomTab.setVisibility(View.VISIBLE);
+        showBottomTab();
     }
+
+    LongPressPopup mapPopup;
 
     private void createMapPopup() {
         mapPopup = new LongPressPopupBuilder(this)
@@ -204,6 +178,16 @@ public class MainActivity extends AppCompatActivity implements IMainView, Recycl
         mapPopup.showNow();
     }
 
+    MyBottomSheetFiltr mBottomSheet;
+
+    @Override
+    public void showBottomSheetFilter() {
+        if (mBottomSheet == null) {
+            mBottomSheet = new MyBottomSheetFiltr(this);
+        }
+        mBottomSheet.show(getSupportFragmentManager(), "");
+    }
+
     @Override
     public void openMapActivity() {
         Intent intent = new Intent(this, MapActivity.class);
@@ -212,13 +196,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, Recycl
     }
 
     @Override
-    public void showDialogFilterSetting() {
-        dialogFiltr.show(getFragmentManager(), "dialog");
-    }
-
-    @Override
-    public void showDialogSortSetting() {
-        dialogSort.show(getFragmentManager(), "dialogSort");
+    public void showBottomSheetSort() {
     }
 
     @Override
@@ -234,18 +212,15 @@ public class MainActivity extends AppCompatActivity implements IMainView, Recycl
 
     @Override
     public void OnFiltrChange(String newRequestUrl) {
-        if (newRequestUrl != requestUrl) {
-            presenter.loadData(newRequestUrl);
-            requestUrl = newRequestUrl;
-        }
-        showBottomTab();
+        presenter.onFiltrChange(newRequestUrl);
     }
 
     @Override
     public void OnSortChange(int flag) {
         presenter.changeSortSetting(flag);
-        showBottomTab();
     }
+
+    SupportMapFragment mapFragment;
 
     @Override
     public void onViewInflated(@Nullable String popupTag, View root) {
@@ -262,7 +237,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, Recycl
             public void onMapReady(GoogleMap googleMap) {
                 gMap = googleMap;
                 googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-                EarthQuake currentEarthQuake = listItem.get(popup_position);
+                EarthQuake currentEarthQuake = RecyclerViewAdapter.earthQuakesdata.get(popup_position);
                 LatLng coordinates = new LatLng(currentEarthQuake.getLatitude(), currentEarthQuake.getLongitude());
                 int circleColor = Utiil.calculateCircleColor(getApplicationContext(), currentEarthQuake.getMagnitude());
                 //internal circle

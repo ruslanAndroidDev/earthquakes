@@ -31,7 +31,7 @@ public class Utiil {
         }
     }
 
-    public static int calculateCircleSize(Context context, double magnitude) {
+    public static int calculateCircleSize(double magnitude) {
         if (magnitude < 3) {
             return Constants.SIZE_MIN;
         } else if (magnitude < 6) {
