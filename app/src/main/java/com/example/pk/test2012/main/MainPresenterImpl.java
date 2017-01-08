@@ -1,9 +1,14 @@
 package com.example.pk.test2012.main;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.example.pk.test2012.EarthQuake;
+import com.example.pk.test2012.uttil.Constants;
 import com.example.pk.test2012.uttil.DataHelper;
 import com.example.pk.test2012.uttil.DataLoadListener;
 
@@ -15,25 +20,49 @@ import java.util.ArrayList;
 public class MainPresenterImpl implements DataLoadListener, MainPresenter {
     IMainView mainView;
     String requestUrl;
+    Context context;
 
-    public MainPresenterImpl(IMainView mainView) {
+    public MainPresenterImpl(IMainView mainView, Context context) {
         this.mainView = mainView;
+        this.context = context;
     }
 
-    public void loadData(String url) {
-        requestUrl = url;
-        DataHelper dataHelper = new DataHelper();
-        dataHelper.loadDataWithListener(url, this);
+    DataHelper dataHelper;
+
+    public void loadData(String newUrl) {
+        if (dataHelper == null) {
+            dataHelper = new DataHelper();
+        }
+        if (isNetworkConection()) {
+            if (newUrl.equals("")) {
+                if (requestUrl == null) {
+                    newUrl = Constants.DEFAULT_URL_REQUEST;
+                    dataHelper.loadDataWithListener(newUrl, this);
+                } else {
+                    dataHelper.loadDataWithListener(requestUrl, this);
+                }
+            } else if (!newUrl.equals(requestUrl)) {
+                requestUrl = newUrl;
+                dataHelper.loadDataWithListener(newUrl, this);
+            }
+        } else {
+            mainView.showOffLineMessage();
+        }
     }
 
     @Override
     public void itemLongClick(int position) {
+        mainView.hideBottomTab();
         mainView.showPopupMap(position);
     }
 
     @Override
     public void mapBtnClick() {
-        mainView.openMapActivity();
+        if (!isNetworkConection()) {
+            Toast.makeText(context, "No internet Conection", Toast.LENGTH_LONG).show();
+        } else {
+            mainView.openMapActivity(requestUrl);
+        }
     }
 
     @Override
@@ -49,9 +78,15 @@ public class MainPresenterImpl implements DataLoadListener, MainPresenter {
     }
 
     @Override
-    public void changeSortSetting(int flag) {
-        mainView.showBottomTab();
-
+    public void onSortChange(int flag) {
+        switch (flag) {
+            case Constants.Sort_FLAG_DATE:
+                break;
+            case Constants.SORT_FLAG_POWERFUL_FIRST:
+                break;
+            case Constants.SORT_FLAG_WEAK_FIRST:
+                break;
+        }
     }
 
     @Override
@@ -69,15 +104,25 @@ public class MainPresenterImpl implements DataLoadListener, MainPresenter {
 
     @Override
     public void onFiltrChange(String newRequestUrl) {
-        if (newRequestUrl != requestUrl) {
+        if (!newRequestUrl.equals(requestUrl)) {
+            mainView.showProgress();
+            RecyclerViewAdapter.clearData();
             loadData(newRequestUrl);
             requestUrl = newRequestUrl;
         }
-        mainView.showBottomTab();
+    }
+
+    private boolean isNetworkConection() {
+        ConnectivityManager cm =
+                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 
     @Override
     public void onLoad(ArrayList<EarthQuake> data) {
+        mainView.hideProgress();
         mainView.setItem(data);
+        mainView.showBottomTab();
     }
 }

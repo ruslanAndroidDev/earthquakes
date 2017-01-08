@@ -12,11 +12,19 @@ public interface IMainView {
 
     void showPopupMap(int itemPosition);
 
+    void showProgress();
+
+    void hideProgress();
+
     void showBottomSheetFilter();
-    void openMapActivity();
 
     void showBottomSheetSort();
 
+    void openMapActivity(String url);
+
     void showBottomTab();
+
     void hideBottomTab();
+
+    void showOffLineMessage();
 }

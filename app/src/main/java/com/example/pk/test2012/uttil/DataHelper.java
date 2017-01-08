@@ -72,13 +72,13 @@ public class DataHelper {
                 }
                 resultJson = baos.toString("UTF-8");
                 inputStream.close();
-                urlConnection.disconnect();
                 baos.close();
                 buffer = null;
             } catch (Exception e) {
                 e.printStackTrace();
                 Log.d("tag", e.getMessage() + "\n ERROR");
             }
+            urlConnection.disconnect();
             return resultJson;
         }
 
@@ -108,10 +108,17 @@ public class DataHelper {
                     longitude = coordinates.getDouble(0);
                     latitude = coordinates.getDouble(1);
                     try {
-                        arrayList.add(new EarthQuake(itemProperties.getString(PLACE), itemProperties.getLong(MAGNITUDE), itemProperties.getLong(TIME), latitude, longitude));
+                        if (itemProperties.getLong(MAGNITUDE) != 0) {
+                            arrayList.add(new EarthQuake(itemProperties.getString(PLACE), itemProperties.getLong(MAGNITUDE), itemProperties.getLong(TIME), latitude, longitude));
+                        }
                     } catch (JSONException es) {
                     }
                 }
+                features=null;
+                dataJsonObj=null;
+                item = null;
+                itemProperties=null;
+                itemGeometry=null;
             } catch (JSONException e1) {
                 e1.printStackTrace();
                 Log.d("tag", e1.getMessage());

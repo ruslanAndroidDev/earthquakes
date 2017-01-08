@@ -5,10 +5,11 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetDialogFragment;
-import android.util.Log;
+import android.support.v7.widget.AppCompatRadioButton;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 import com.example.pk.test2012.uttil.Constants;
@@ -21,8 +22,10 @@ import static android.content.Context.MODE_PRIVATE;
  */
 
 public class MyBottomSheetSort extends BottomSheetDialogFragment {
-    RadioGroup typeRG;
-    RadioGroup filtrRG;
+    RadioGroup sortRG;
+    RadioButton powerful_first;
+    RadioButton weak_first;
+    RadioButton date;
     DialogListener.SortDialogListener listener;
 
     @Override
@@ -37,14 +40,27 @@ public class MyBottomSheetSort extends BottomSheetDialogFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.filter_popup, container, false);
-        typeRG = (RadioGroup) v.findViewById(R.id.radioType);
-        filtrRG = (RadioGroup) v.findViewById(R.id.typeFiltr);
+        View v = inflater.inflate(R.layout.sort_popup, container, false);
+        sortRG = (RadioGroup) v.findViewById(R.id.sortRG);
+        powerful_first = (AppCompatRadioButton) v.findViewById(R.id.radio_btn_sort_powerful_first);
+        weak_first = (AppCompatRadioButton) v.findViewById(R.id.radio_btn_sort_weak_first);
+        date = (AppCompatRadioButton) v.findViewById(R.id.radio_btn_sort_date);
         SharedPreferences sPref = getActivity().getPreferences(MODE_PRIVATE);
-        int type_id = sPref.getInt(Constants.SHAREDPREF_KEY_TYPE, Constants.DEFAULT_RADIO_BTN_CHECKED_TYPE);
-        int filtrId = sPref.getInt(Constants.SHAREDPREF_KEY_FILTER, Constants.DEFAULT_RADIO_BTN_CHECKED_FILTER_ID);
-        typeRG.check(type_id);
-        filtrRG.check(filtrId);
+        int sortflag = sPref.getInt(Constants.SHAREDPREF_KEY_SORT, Constants.DEFAULT_RADIO_BTN_CHECKED_SORT_ID);
+        int sortBtnId = 0;
+        switch (sortflag) {
+            case Constants.SORT_FLAG_POWERFUL_FIRST:
+                sortBtnId = R.id.radio_btn_sort_powerful_first;
+                break;
+            case Constants.SORT_FLAG_WEAK_FIRST:
+                sortBtnId = R.id.radio_btn_sort_weak_first;
+                break;
+
+            case Constants.Sort_FLAG_DATE:
+                sortBtnId = R.id.radio_btn_sort_date;
+                break;
+        }
+        sortRG.check(sortBtnId);
         return v;
     }
 
@@ -52,44 +68,19 @@ public class MyBottomSheetSort extends BottomSheetDialogFragment {
     @Override
     public void onDismiss(DialogInterface dialog) {
         super.onDismiss(dialog);
-        int typeRGCheckedRadioButtonId = typeRG.getCheckedRadioButtonId();
-        int typeFiltrId = filtrRG.getCheckedRadioButtonId();
-        Log.d("tag", typeRGCheckedRadioButtonId + " typeRg," + typeFiltrId);
+        int sortRGCheckedId = sortRG.getCheckedRadioButtonId();
+        int toSort = 0;
         SharedPreferences sPref = getActivity().getPreferences(MODE_PRIVATE);
         SharedPreferences.Editor ed = sPref.edit();
-        int typeId = 0;
-        int filtrId = 0;
-        String url = "";
-        if (typeRG.getCheckedRadioButtonId() == R.id.radio_btn_type_all) {
-            typeId = R.id.radio_btn_type_all;
-            if (filtrRG.getCheckedRadioButtonId() == R.id.radio_btn_filtr_today) {
-                filtrId = R.id.radio_btn_filtr_today;
-                url = Constants.ALL_DAILY_URL_REQUEST;
-
-            } else if (filtrRG.getCheckedRadioButtonId() == R.id.radio_btn_filtr_week) {
-                filtrId = R.id.radio_btn_filtr_week;
-                url = Constants.ALL_WEEK_URL_REQUEST;
-            } else if (filtrRG.getCheckedRadioButtonId() == R.id.radio_btn_filtr_mounth) {
-                filtrId = R.id.radio_btn_filtr_mounth;
-                url = Constants.ALL_MONTH_URL_REQUEST;
-            }
-        } else if (typeRG.getCheckedRadioButtonId() == R.id.radio_btn_type_significant) {
-            typeId = R.id.radio_btn_type_significant;
-            if (filtrRG.getCheckedRadioButtonId() == R.id.radio_btn_filtr_today) {
-                filtrId = R.id.radio_btn_filtr_today;
-                url = Constants.SIGNIFICANT_DAILY_URL_REQUEST;
-            } else if (filtrRG.getCheckedRadioButtonId() == R.id.radio_btn_filtr_week) {
-                filtrId = R.id.radio_btn_filtr_week;
-                url = Constants.SIGNIFICANT_WEEK_URL_REQUEST;
-            } else if (filtrRG.getCheckedRadioButtonId() == R.id.radio_btn_filtr_mounth) {
-                filtrId = R.id.radio_btn_filtr_mounth;
-                url = Constants.SIGNIFICANT_MONTH_URL_REQUEST;
-            }
+        if (sortRGCheckedId == R.id.radio_btn_sort_date) {
+            toSort = Constants.Sort_FLAG_DATE;
+        } else if (sortRGCheckedId == R.id.radio_btn_sort_weak_first) {
+            toSort = Constants.SORT_FLAG_WEAK_FIRST;
+        } else if (sortRGCheckedId == R.id.radio_btn_sort_powerful_first) {
+            toSort = Constants.SORT_FLAG_POWERFUL_FIRST;
         }
-        ed.putInt(Constants.SHAREDPREF_KEY_TYPE, typeId);
-        ed.putInt(Constants.SHAREDPREF_KEY_FILTER, filtrId);
-        ed.putString(Constants.SHAREDPREF_KEY_URL, url);
+        ed.putInt(Constants.SHAREDPREF_KEY_SORT, toSort);
         ed.commit();
-        listener.OnSortChange(0);
+        listener.OnSortChange(toSort);
     }
 }

@@ -110,6 +110,10 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     }
 
+    public static void clearData() {
+        earthQuakesdata.clear();
+    }
+
     @Override
     public int getItemCount() {
         return earthQuakesdata.size();

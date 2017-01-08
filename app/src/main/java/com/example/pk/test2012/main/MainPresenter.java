@@ -16,7 +16,7 @@ public interface MainPresenter {
 
     void sortCardClick();
 
-    void changeSortSetting(int flag);
+    void onSortChange(int flag);
 
     void onScrolledRecyclerView(int dy, LinearLayout bottomTab, boolean isAnimationWorking);
 

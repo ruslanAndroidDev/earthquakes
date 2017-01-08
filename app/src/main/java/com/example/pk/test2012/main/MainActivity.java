@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
@@ -19,6 +20,7 @@ import android.widget.TextView;
 import com.example.pk.test2012.EarthQuake;
 import com.example.pk.test2012.MapActivity;
 import com.example.pk.test2012.MyBottomSheetFiltr;
+import com.example.pk.test2012.MyBottomSheetSort;
 import com.example.pk.test2012.R;
 import com.example.pk.test2012.uttil.Constants;
 import com.example.pk.test2012.uttil.DialogListener;
@@ -38,7 +40,7 @@ import rm.com.longpresspopup.LongPressPopupBuilder;
 import rm.com.longpresspopup.PopupInflaterListener;
 import rm.com.longpresspopup.PopupStateListener;
 
-public class MainActivity extends AppCompatActivity implements IMainView, RecyclerEvent.LongClickListener, View.OnClickListener, DialogListener.FiltrDialogListener, DialogListener.SortDialogListener, PopupInflaterListener, PopupStateListener {
+public class MainActivity extends AppCompatActivity implements IMainView, RecyclerEvent.LongClickListener, View.OnClickListener, DialogListener.FiltrDialogListener, DialogListener.SortDialogListener, PopupInflaterListener, PopupStateListener, SwipeRefreshLayout.OnRefreshListener {
     RecyclerView recyclerView;
     MainPresenterImpl presenter;
     LinearLayout bottomTab;
@@ -52,8 +54,11 @@ public class MainActivity extends AppCompatActivity implements IMainView, Recycl
     SharedPreferences sPref;
     LoadingView loadingView;
     Animation anim_out, anim_in;
+    ImageView img_noNetwork;
+    String url;
 
-    String requestUrl;
+    SwipeRefreshLayout swipeRefreshLayout;
+    boolean isBottomTabShowing;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, Recycl
             @Override
             public void run() {
                 sPref = getPreferences(MODE_PRIVATE);
-                requestUrl = sPref.getString(Constants.SHAREDPREF_KEY_URL, Constants.DEFAULT_URL_REQUEST);
+                url = sPref.getString(Constants.SHAREDPREF_KEY_URL, Constants.DEFAULT_URL_REQUEST);
             }
         });
         t.start();
@@ -75,16 +80,23 @@ public class MainActivity extends AppCompatActivity implements IMainView, Recycl
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
+        img_noNetwork = (ImageView) findViewById(R.id.imgNoNetwork);
+
         bottomTab = (LinearLayout) findViewById(R.id.bottom_tab);
 
         toolbarMapBtn = (ImageView) findViewById(R.id.map_btn);
         toolbarMapBtn.setOnClickListener(this);
 
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshL);
+        int[] colorScheme = {R.color.green_light, R.color.green_dark, R.color.green_super_dark};
+        swipeRefreshLayout.setColorSchemeResources(colorScheme);
+        swipeRefreshLayout.setOnRefreshListener(this);
+
         loadingView = (LoadingView) findViewById(R.id.loadingView);
         loadingView.start();
 
-        presenter = new MainPresenterImpl(this);
-        presenter.loadData(requestUrl);
+        presenter = new MainPresenterImpl(this, this);
+        presenter.loadData(url);
     }
 
     @Override
@@ -120,6 +132,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, Recycl
             }
         });
         bottomTab.startAnimation(anim_in);
+        isBottomTabShowing = true;
     }
 
     public void hideBottomTab() {
@@ -141,6 +154,17 @@ public class MainActivity extends AppCompatActivity implements IMainView, Recycl
 
             }
         });
+        isBottomTabShowing = false;
+    }
+
+    @Override
+    public void showOffLineMessage() {
+        loadingView.stop();
+        img_noNetwork.setVisibility(View.VISIBLE);
+        recyclerView.setVisibility(View.INVISIBLE);
+        if (isBottomTabShowing) {
+            hideBottomTab();
+        }
     }
 
 
@@ -152,9 +176,12 @@ public class MainActivity extends AppCompatActivity implements IMainView, Recycl
 
     @Override
     public void setItem(ArrayList<EarthQuake> data) {
-        loadingView.stop();
+        img_noNetwork.setVisibility(View.GONE);
+        recyclerView.setVisibility(View.VISIBLE);
         recyclerView.setAdapter(new RecyclerViewAdapter(data, this, this));
-        showBottomTab();
+        if (!isBottomTabShowing) {
+            showBottomTab();
+        }
     }
 
     LongPressPopup mapPopup;
@@ -178,25 +205,43 @@ public class MainActivity extends AppCompatActivity implements IMainView, Recycl
         mapPopup.showNow();
     }
 
-    MyBottomSheetFiltr mBottomSheet;
+    @Override
+    public void showProgress() {
+        loadingView.start();
+        recyclerView.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void hideProgress() {
+        loadingView.stop();
+        recyclerView.setVisibility(View.VISIBLE);
+    }
+
+    MyBottomSheetFiltr mBottomSheetFiltr;
 
     @Override
     public void showBottomSheetFilter() {
-        if (mBottomSheet == null) {
-            mBottomSheet = new MyBottomSheetFiltr(this);
+        if (mBottomSheetFiltr == null) {
+            mBottomSheetFiltr = new MyBottomSheetFiltr(this);
         }
-        mBottomSheet.show(getSupportFragmentManager(), "");
+        mBottomSheetFiltr.show(getSupportFragmentManager(), "");
     }
 
     @Override
-    public void openMapActivity() {
+    public void openMapActivity(String url) {
         Intent intent = new Intent(this, MapActivity.class);
-        intent.putExtra("url", requestUrl);
+        intent.putExtra("url", url);
         startActivity(intent);
     }
 
+    MyBottomSheetSort myBottomSheetSort;
+
     @Override
     public void showBottomSheetSort() {
+        if (myBottomSheetSort == null) {
+            myBottomSheetSort = new MyBottomSheetSort(this);
+        }
+        myBottomSheetSort.show(getSupportFragmentManager(), "");
     }
 
     @Override
@@ -217,7 +262,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, Recycl
 
     @Override
     public void OnSortChange(int flag) {
-        presenter.changeSortSetting(flag);
+        presenter.onSortChange(flag);
     }
 
     SupportMapFragment mapFragment;
@@ -254,5 +299,18 @@ public class MainActivity extends AppCompatActivity implements IMainView, Recycl
     @Override
     public void onPopupDismiss(@Nullable String popupTag) {
         gMap.clear();
+        showBottomTab();
+    }
+
+    @Override
+    public void onRefresh() {
+        swipeRefreshLayout.setRefreshing(true);
+        swipeRefreshLayout.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                swipeRefreshLayout.setRefreshing(false);
+                presenter.loadData("");
+            }
+        }, 1000);
     }
 }
