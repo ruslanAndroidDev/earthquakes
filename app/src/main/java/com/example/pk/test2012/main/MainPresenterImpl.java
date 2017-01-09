@@ -21,6 +21,7 @@ public class MainPresenterImpl implements DataLoadListener, MainPresenter {
     IMainView mainView;
     String requestUrl;
     Context context;
+    ArrayList<EarthQuake> mydata;
 
     public MainPresenterImpl(IMainView mainView, Context context) {
         this.mainView = mainView;
@@ -79,14 +80,46 @@ public class MainPresenterImpl implements DataLoadListener, MainPresenter {
 
     @Override
     public void onSortChange(int flag) {
+        mainView.showProgress();
         switch (flag) {
             case Constants.Sort_FLAG_DATE:
+                loadData(requestUrl);
                 break;
             case Constants.SORT_FLAG_POWERFUL_FIRST:
+                sortPowerfulFirst();
                 break;
             case Constants.SORT_FLAG_WEAK_FIRST:
+                sortWeakFirst();
                 break;
         }
+    }
+
+    private void sortWeakFirst() {
+        for (int i = 0; i < mydata.size(); i++) {
+            for (int k = 0; k < mydata.size() - i - 1; k++) {
+                if (mydata.get(k).getMagnitude() > mydata.get(k + 1).getMagnitude()) {
+                    swapitem(k);
+                }
+            }
+        }
+        mainView.setItem(mydata);
+    }
+
+    private void swapitem(int k) {
+        EarthQuake quake = mydata.get(k);
+        mydata.set(k, mydata.get(k + 1));
+        mydata.set(k + 1, quake);
+    }
+
+    private void sortPowerfulFirst() {
+        for (int i = 0; i < mydata.size(); i++) {
+            for (int k = 0; k < mydata.size() - i - 1; k++) {
+                if (mydata.get(k).getMagnitude() > mydata.get(k + 1).getMagnitude()) {
+                    swapitem(k);
+                }
+            }
+        }
+        mainView.setItem(mydata);
     }
 
     @Override
@@ -121,6 +154,7 @@ public class MainPresenterImpl implements DataLoadListener, MainPresenter {
 
     @Override
     public void onLoad(ArrayList<EarthQuake> data) {
+        mydata = data;
         mainView.hideProgress();
         mainView.setItem(data);
         mainView.showBottomTab();
