@@ -6,7 +6,7 @@ import android.widget.LinearLayout;
  * Created by pk on 24.12.2016.
  */
 public interface MainPresenter {
-    void loadData(String url);
+    void loadData(String url,int sortFlag);
 
     void itemLongClick(int position);
 

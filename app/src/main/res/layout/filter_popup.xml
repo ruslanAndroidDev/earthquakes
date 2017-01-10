@@ -33,7 +33,7 @@
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp"
                     android:gravity="center_horizontal"
-                    android:text="Землетруси :"
+                    android:text="@string/earthQuakes"
                     android:textColor="#ffffff"
                     android:textSize="24sp" />
 
@@ -51,7 +51,7 @@
                         android:layout_height="wrap_content"
                         app:buttonTint="#ffffff"
                         android:layout_weight="1"
-                        android:text="Усі" />
+                        android:text="@string/all" />
 
                     <android.support.v7.widget.AppCompatRadioButton
                         android:id="@+id/radio_btn_type_significant"
@@ -61,7 +61,7 @@
                         app:buttonTint="#ffffff"
                         android:layout_marginBottom="5dp"
                         android:layout_weight="1"
-                        android:text="Найпотужніші" />
+                        android:text="@string/powerful" />
                 </RadioGroup>
 
             </RelativeLayout>
@@ -85,7 +85,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center_horizontal"
-                    android:text="Дата:"
+                    android:text="@string/period"
                     android:textColor="#ffffff"
                     android:textSize="24sp" />
 
@@ -103,7 +103,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         app:buttonTint="#ffffff"
-                        android:text="Сьогодні" />
+                        android:text="@string/day" />
 
                     <android.support.v7.widget.AppCompatRadioButton
                         android:id="@+id/radio_btn_filtr_week"
@@ -112,7 +112,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Цей тиждень" />
+                        android:text="@string/week" />
 
                     <android.support.v7.widget.AppCompatRadioButton
                         android:id="@+id/radio_btn_filtr_mounth"
@@ -122,7 +122,7 @@
                         android:layout_marginBottom="5dp"
                         app:buttonTint="#ffffff"
                         android:layout_weight="1"
-                        android:text="Цей місяць" />
+                        android:text="@string/month" />
                 </RadioGroup>
             </RelativeLayout>
         </android.support.v7.widget.CardView>

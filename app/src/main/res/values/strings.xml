@@ -1,4 +1,16 @@
 <resources>
-    <string name="app_name">EarthQuake</string>
+    <string name="app_name">EarthQuakes</string>
     <string name="map_key">AIzaSyAjTRulIt3vjp74tm2VGmUT7dU55q6nCus</string>
+    <string name="sort">Sort</string>
+    <string name="filtr">Filtr</string>
+    <string name="all">All</string>
+    <string name="from_powerful">From powerful</string>
+    <string name="powerful">Powerful</string>
+    <string name="weakest">Of the weakest</string>
+    <string name="day">Day</string>
+    <string name="week">Week</string>
+    <string name="month">Month</string>
+    <string name="period">Period</string>
+    <string name="date">Date:</string>
+    <string name="earthQuakes">earthQuakes:</string>
 </resources>

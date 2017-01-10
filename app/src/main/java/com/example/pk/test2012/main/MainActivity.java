@@ -55,10 +55,11 @@ public class MainActivity extends AppCompatActivity implements IMainView, Recycl
     LoadingView loadingView;
     Animation anim_out, anim_in;
     ImageView img_noNetwork;
-    String url;
+    String url = Constants.DEFAULT_URL_REQUEST;
 
     SwipeRefreshLayout swipeRefreshLayout;
     boolean isBottomTabShowing;
+    int sortFlag = Constants.DEFAULT_SORT_FLAG;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, Recycl
             public void run() {
                 sPref = getPreferences(MODE_PRIVATE);
                 url = sPref.getString(Constants.SHAREDPREF_KEY_URL, Constants.DEFAULT_URL_REQUEST);
+                sortFlag = sPref.getInt(Constants.SHAREDPREF_KEY_SORT, Constants.DEFAULT_SORT_FLAG);
             }
         });
         t.start();
@@ -96,7 +98,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, Recycl
         loadingView.start();
 
         presenter = new MainPresenterImpl(this, this);
-        presenter.loadData(url);
+        presenter.loadData(url, sortFlag);
     }
 
     @Override
@@ -299,7 +301,6 @@ public class MainActivity extends AppCompatActivity implements IMainView, Recycl
     @Override
     public void onPopupDismiss(@Nullable String popupTag) {
         gMap.clear();
-        showBottomTab();
     }
 
     @Override
@@ -309,7 +310,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, Recycl
             @Override
             public void run() {
                 swipeRefreshLayout.setRefreshing(false);
-                presenter.loadData("");
+                presenter.loadData("", -1);
             }
         }, 1000);
     }

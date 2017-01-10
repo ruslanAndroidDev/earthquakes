@@ -22,23 +22,26 @@ public class MainPresenterImpl implements DataLoadListener, MainPresenter {
     String requestUrl;
     Context context;
     ArrayList<EarthQuake> mydata;
+    int sortFlag;
 
     public MainPresenterImpl(IMainView mainView, Context context) {
         this.mainView = mainView;
         this.context = context;
+        dataHelper = new DataHelper();
     }
 
     DataHelper dataHelper;
 
-    public void loadData(String newUrl) {
-        if (dataHelper == null) {
-            dataHelper = new DataHelper();
+    public void loadData(String newUrl, int sort_flag) {
+        if (sort_flag != -1) {
+            sortFlag = sort_flag;
         }
         if (isNetworkConection()) {
             if (newUrl.equals("")) {
-                if (requestUrl == null) {
+                if (requestUrl.equals("")) {
                     newUrl = Constants.DEFAULT_URL_REQUEST;
                     dataHelper.loadDataWithListener(newUrl, this);
+                    requestUrl = newUrl;
                 } else {
                     dataHelper.loadDataWithListener(requestUrl, this);
                 }
@@ -53,7 +56,6 @@ public class MainPresenterImpl implements DataLoadListener, MainPresenter {
 
     @Override
     public void itemLongClick(int position) {
-        mainView.hideBottomTab();
         mainView.showPopupMap(position);
     }
 
@@ -69,21 +71,19 @@ public class MainPresenterImpl implements DataLoadListener, MainPresenter {
     @Override
     public void filterCardClick() {
         mainView.showBottomSheetFilter();
-        mainView.hideBottomTab();
     }
 
     @Override
     public void sortCardClick() {
         mainView.showBottomSheetSort();
-        mainView.hideBottomTab();
     }
 
     @Override
     public void onSortChange(int flag) {
-        mainView.showProgress();
+        sortFlag = flag;
         switch (flag) {
             case Constants.Sort_FLAG_DATE:
-                loadData(requestUrl);
+                sortDate();
                 break;
             case Constants.SORT_FLAG_POWERFUL_FIRST:
                 sortPowerfulFirst();
@@ -92,6 +92,17 @@ public class MainPresenterImpl implements DataLoadListener, MainPresenter {
                 sortWeakFirst();
                 break;
         }
+    }
+
+    private void sortDate() {
+        for (int i = 0; i < mydata.size(); i++) {
+            for (int k = 0; k < mydata.size() - i - 1; k++) {
+                if (mydata.get(k).getTime() < mydata.get(k + 1).getTime()) {
+                    swapitem(k);
+                }
+            }
+        }
+        mainView.setItem(mydata);
     }
 
     private void sortWeakFirst() {
@@ -114,7 +125,7 @@ public class MainPresenterImpl implements DataLoadListener, MainPresenter {
     private void sortPowerfulFirst() {
         for (int i = 0; i < mydata.size(); i++) {
             for (int k = 0; k < mydata.size() - i - 1; k++) {
-                if (mydata.get(k).getMagnitude() > mydata.get(k + 1).getMagnitude()) {
+                if (mydata.get(k).getMagnitude() < mydata.get(k + 1).getMagnitude()) {
                     swapitem(k);
                 }
             }
@@ -140,7 +151,7 @@ public class MainPresenterImpl implements DataLoadListener, MainPresenter {
         if (!newRequestUrl.equals(requestUrl)) {
             mainView.showProgress();
             RecyclerViewAdapter.clearData();
-            loadData(newRequestUrl);
+            dataHelper.loadDataWithListener(newRequestUrl, this);
             requestUrl = newRequestUrl;
         }
     }
@@ -155,8 +166,8 @@ public class MainPresenterImpl implements DataLoadListener, MainPresenter {
     @Override
     public void onLoad(ArrayList<EarthQuake> data) {
         mydata = data;
+        onSortChange(sortFlag);
         mainView.hideProgress();
-        mainView.setItem(data);
-        mainView.showBottomTab();
+        mainView.setItem(mydata);
     }
 }

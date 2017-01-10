@@ -27,7 +27,7 @@
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
                 android:gravity="center_horizontal"
-                android:text="Сортувати:"
+                android:text="@string/sort"
                 android:textColor="#000000"
                 android:textSize="24sp" />
 
@@ -44,7 +44,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             app:buttonTint="#ffffff"
-                            android:text="Від найпотужніших"
+                            android:text="@string/from_powerful"
                             style="@style/MyCustomFiltrRagioButtonStyle" />
 
                         <android.support.v7.widget.AppCompatRadioButton
@@ -54,7 +54,7 @@
                             android:layout_marginBottom="5dp"
                             android:layout_weight="1"
                             app:buttonTint="#ffffff"
-                            android:text="Від найслабших"
+                            android:text="@string/weakest"
                             style="@style/MyCustomFiltrRagioButtonStyle"/>
                         <android.support.v7.widget.AppCompatRadioButton
                             android:id="@+id/radio_btn_sort_date"
@@ -63,7 +63,7 @@
                             app:buttonTint="#ffffff"
                             android:layout_marginBottom="5dp"
                             android:layout_weight="1"
-                            android:text="По даті"
+                            android:text="@string/date"
                             style="@style/MyCustomFiltrRagioButtonStyle"/>
                     </RadioGroup>
         </RelativeLayout>

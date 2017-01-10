@@ -27,5 +27,6 @@ public class Constants {
     public static final int SORT_FLAG_POWERFUL_FIRST = 4;
     public static final int SORT_FLAG_WEAK_FIRST = 5;
     public static final int Sort_FLAG_DATE = 6;
+    public static final int DEFAULT_SORT_FLAG= Sort_FLAG_DATE;
 
 }

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="date">По даті</string>
+    <string name="app_name">EarthQuakes</string>
+    <string name="map_key">AIzaSyAjTRulIt3vjp74tm2VGmUT7dU55q6nCus</string>
+    <string name="sort">Сортування</string>
+    <string name="filtr">Фільтр</string>
+    <string name="all">Усі</string>
+    <string name="from_powerful">Від найпотужніших</string>
+    <string name="powerful">Найпотужніші</string>
+    <string name="weakest">Від найслабших</string>
+    <string name="day">доба</string>
+    <string name="week">тиждень</string>
+    <string name="month">місяць</string>
+    <string name="period">Період:</string>
+    <string name="earthQuakes">Землетруси:</string>
+
+</resources>
