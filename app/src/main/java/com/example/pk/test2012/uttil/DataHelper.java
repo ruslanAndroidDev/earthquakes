@@ -54,6 +54,7 @@ public class DataHelper {
         protected void onPostExecute(ArrayList<EarthQuake> earthQuakes) {
             super.onPostExecute(earthQuakes);
             listener.onLoad(earthQuakes);
+
         }
 
         private String getJsonFromUrl(String urlStr) {
@@ -76,7 +77,7 @@ public class DataHelper {
                 buffer = null;
             } catch (Exception e) {
                 e.printStackTrace();
-                Log.d("tag", e.getMessage() + "\n ERROR");
+                throw new NullPointerException("");
             }
             urlConnection.disconnect();
             return resultJson;
@@ -114,11 +115,11 @@ public class DataHelper {
                     } catch (JSONException es) {
                     }
                 }
-                features=null;
-                dataJsonObj=null;
+                features = null;
+                dataJsonObj = null;
                 item = null;
-                itemProperties=null;
-                itemGeometry=null;
+                itemProperties = null;
+                itemGeometry = null;
             } catch (JSONException e1) {
                 e1.printStackTrace();
                 Log.d("tag", e1.getMessage());

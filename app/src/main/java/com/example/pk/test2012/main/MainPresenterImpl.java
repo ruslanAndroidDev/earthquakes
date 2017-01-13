@@ -19,7 +19,7 @@ import java.util.ArrayList;
  */
 public class MainPresenterImpl implements DataLoadListener, MainPresenter {
     IMainView mainView;
-    String requestUrl;
+    String requestUrl = "m";
     Context context;
     ArrayList<EarthQuake> mydata;
     int sortFlag;
@@ -38,10 +38,9 @@ public class MainPresenterImpl implements DataLoadListener, MainPresenter {
         }
         if (isNetworkConection()) {
             if (newUrl.equals("")) {
-                if (requestUrl.equals("")) {
-                    newUrl = Constants.DEFAULT_URL_REQUEST;
-                    dataHelper.loadDataWithListener(newUrl, this);
-                    requestUrl = newUrl;
+                if (requestUrl == null) {
+                    requestUrl = Constants.DEFAULT_URL_REQUEST;
+                    dataHelper.loadDataWithListener(requestUrl, this);
                 } else {
                     dataHelper.loadDataWithListener(requestUrl, this);
                 }
@@ -92,6 +91,7 @@ public class MainPresenterImpl implements DataLoadListener, MainPresenter {
                 sortWeakFirst();
                 break;
         }
+        Toast.makeText(context, "Дані відсортовано " + mydata.size(), Toast.LENGTH_SHORT).show();
     }
 
     private void sortDate() {
@@ -166,6 +166,7 @@ public class MainPresenterImpl implements DataLoadListener, MainPresenter {
     @Override
     public void onLoad(ArrayList<EarthQuake> data) {
         mydata = data;
+        Toast.makeText(context, "onLoad" + data.size(), Toast.LENGTH_SHORT).show();
         onSortChange(sortFlag);
         mainView.hideProgress();
         mainView.setItem(mydata);

@@ -13,6 +13,7 @@ android {
         targetSdkVersion 24
         versionCode 1
         versionName "1.0"
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -33,7 +34,7 @@ dependencies {
     compile 'com.android.support:design:24.2.0'
     compile 'me.wangyuwei:LoadingiVew:1.0.5'
     compile 'com.google.code.gson:gson:2.6.1'
-    compile 'com.github.paolorotolo:appintro:4.1.0'
-
+    compile 'za.co.riggaroo:materialhelptutorial:1.+'
+    compile 'com.android.support:multidex:1.0.1'
 
 }

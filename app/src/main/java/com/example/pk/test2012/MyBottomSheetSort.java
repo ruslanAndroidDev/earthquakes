@@ -46,7 +46,7 @@ public class MyBottomSheetSort extends BottomSheetDialogFragment {
         weak_first = (AppCompatRadioButton) v.findViewById(R.id.radio_btn_sort_weak_first);
         date = (AppCompatRadioButton) v.findViewById(R.id.radio_btn_sort_date);
         SharedPreferences sPref = getActivity().getPreferences(MODE_PRIVATE);
-        int sortflag = sPref.getInt(Constants.SHAREDPREF_KEY_SORT, Constants.DEFAULT_RADIO_BTN_CHECKED_SORT_ID);
+        int sortflag = sPref.getInt(Constants.SHAREDPREF_KEY_SORT, Constants.DEFAULT_SORT_FLAG);
         int sortBtnId = 0;
         switch (sortflag) {
             case Constants.SORT_FLAG_POWERFUL_FIRST:
