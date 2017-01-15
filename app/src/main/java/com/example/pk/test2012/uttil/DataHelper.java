@@ -9,6 +9,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -64,22 +65,17 @@ public class DataHelper {
                 urlConnection.setRequestMethod("GET");
                 urlConnection.connect();
 
-                inputStream = urlConnection.getInputStream();
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                byte[] buffer = new byte[500];
-                while (inputStream.available() > 0) {
-                    int count = inputStream.read(buffer);
-                    baos.write(buffer, 0, count);
+                inputStream = new BufferedInputStream(urlConnection.getInputStream());
+                ByteArrayOutputStream result = new ByteArrayOutputStream();
+                byte[] buffer = new byte[1024];
+                int length;
+                while ((length = inputStream.read(buffer)) != -1) {
+                    result.write(buffer, 0, length);
                 }
-                resultJson = baos.toString("UTF-8");
-                inputStream.close();
-                baos.close();
-                buffer = null;
+                resultJson = result.toString("UTF-8");
             } catch (Exception e) {
-                e.printStackTrace();
-                throw new NullPointerException("");
+                Log.d("tag", "error");
             }
-            urlConnection.disconnect();
             return resultJson;
         }
 
