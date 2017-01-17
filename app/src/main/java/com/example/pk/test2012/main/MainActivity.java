@@ -182,7 +182,6 @@ public class MainActivity extends AppCompatActivity implements IMainView, Recycl
         img_noNetwork.setVisibility(View.GONE);
         recyclerView.setVisibility(View.VISIBLE);
         recyclerView.setAdapter(new RecyclerViewAdapter(data, this, this));
-        Toast.makeText(this,"setItem " + data.size(),Toast.LENGTH_SHORT).show();
         if (!isBottomTabShowing) {
             showBottomTab();
         }

@@ -91,7 +91,6 @@ public class MainPresenterImpl implements DataLoadListener, MainPresenter {
                 sortWeakFirst();
                 break;
         }
-        Toast.makeText(context, "Дані відсортовано " + mydata.size(), Toast.LENGTH_SHORT).show();
     }
 
     private void sortDate() {
@@ -166,7 +165,6 @@ public class MainPresenterImpl implements DataLoadListener, MainPresenter {
     @Override
     public void onLoad(ArrayList<EarthQuake> data) {
         mydata = data;
-        Toast.makeText(context, "onLoad" + data.size(), Toast.LENGTH_SHORT).show();
         onSortChange(sortFlag);
         mainView.hideProgress();
         mainView.setItem(mydata);

@@ -94,9 +94,6 @@ public class DataHelper {
                 double longitude;
                 double latitude;
                 int parseCount = features.length();
-                if (parseCount > 100) {
-                    parseCount = 100;
-                }
                 for (int i = 0; i < parseCount; i++) {
                     item = features.getJSONObject(i);
                     itemProperties = item.getJSONObject(PROPETRIES);
