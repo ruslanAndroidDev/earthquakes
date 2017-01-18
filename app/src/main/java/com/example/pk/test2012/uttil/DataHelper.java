@@ -21,7 +21,6 @@ import java.util.ArrayList;
  */
 public class DataHelper {
     public void loadDataWithListener(String url, DataLoadListener listener) {
-        Log.d("tag", "Start Loadaing data, url " + url);
         ParseTask parseTask = new ParseTask(listener);
         parseTask.execute(url);
     }

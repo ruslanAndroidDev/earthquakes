@@ -2,6 +2,8 @@ package com.example.pk.test2012.main;
 
 import android.content.Context;
 import android.graphics.drawable.GradientDrawable;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -43,6 +45,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         TextView magnitude;
         TextView date;
         TextView time;
+        Runnable workRunnable;
 
         public MyViewHolder(View itemView) {
             super(itemView);
@@ -60,10 +63,16 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
         @Override
         public boolean onLongClick(View v) {
-            longClickListener.onLongClickRecyclerView(getAdapterPosition());
+            Handler handler = new Handler(Looper.getMainLooper() /*UI thread*/);
+            workRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    longClickListener.onLongClickRecyclerView(getAdapterPosition());
+                }
+            };
+            handler.postDelayed(workRunnable, 500 /*delay*/);
             return true;
         }
-
     }
 
 
