@@ -1,5 +1,6 @@
 package com.example.pk.test2012.main;
 
+import android.support.v7.widget.LinearLayoutManager;
 import android.widget.LinearLayout;
 
 /**
@@ -18,7 +19,7 @@ public interface MainPresenter {
 
     void onSortChange(int flag);
 
-    void onScrolledRecyclerView(int dy, LinearLayout bottomTab, boolean isAnimationWorking);
+    void onScrolledRecyclerView(int dy, LinearLayout bottomTab, boolean isAnimationWorking, LinearLayoutManager lm);
 
     void onFiltrChange(String newRequestUrl);
 }

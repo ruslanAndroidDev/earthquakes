@@ -3,6 +3,7 @@ package com.example.pk.test2012.main;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.support.v7.widget.LinearLayoutManager;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -23,6 +24,12 @@ public class MainPresenterImpl implements DataLoadListener, MainPresenter {
     Context context;
     ArrayList<EarthQuake> mydata;
     int sortFlag;
+
+    RecyclerViewAdapter adapter;
+
+    public void setAdapter(RecyclerViewAdapter adapter) {
+        this.adapter = adapter;
+    }
 
     public MainPresenterImpl(IMainView mainView, Context context) {
         this.mainView = mainView;
@@ -80,60 +87,17 @@ public class MainPresenterImpl implements DataLoadListener, MainPresenter {
     @Override
     public void onSortChange(int flag) {
         sortFlag = flag;
-        switch (flag) {
-            case Constants.Sort_FLAG_DATE:
-                sortDate();
-                break;
-            case Constants.SORT_FLAG_POWERFUL_FIRST:
-                sortPowerfulFirst();
-                break;
-            case Constants.SORT_FLAG_WEAK_FIRST:
-                sortWeakFirst();
-                break;
-        }
+        RecyclerViewAdapter.clearData();
+        SortTask sortTask = new SortTask(adapter, mydata);
+        sortTask.execute(sortFlag);
     }
 
-    private void sortDate() {
-        for (int i = 0; i < mydata.size(); i++) {
-            for (int k = 0; k < mydata.size() - i - 1; k++) {
-                if (mydata.get(k).getTime() < mydata.get(k + 1).getTime()) {
-                    swapitem(k);
-                }
-            }
-        }
-        mainView.setItem(mydata);
-    }
-
-    private void sortWeakFirst() {
-        for (int i = 0; i < mydata.size(); i++) {
-            for (int k = 0; k < mydata.size() - i - 1; k++) {
-                if (mydata.get(k).getMagnitude() > mydata.get(k + 1).getMagnitude()) {
-                    swapitem(k);
-                }
-            }
-        }
-        mainView.setItem(mydata);
-    }
-
-    private void swapitem(int k) {
-        EarthQuake quake = mydata.get(k);
-        mydata.set(k, mydata.get(k + 1));
-        mydata.set(k + 1, quake);
-    }
-
-    private void sortPowerfulFirst() {
-        for (int i = 0; i < mydata.size(); i++) {
-            for (int k = 0; k < mydata.size() - i - 1; k++) {
-                if (mydata.get(k).getMagnitude() < mydata.get(k + 1).getMagnitude()) {
-                    swapitem(k);
-                }
-            }
-        }
-        mainView.setItem(mydata);
-    }
 
     @Override
-    public void onScrolledRecyclerView(int dy, LinearLayout bottomTab, boolean isAnimationWorking) {
+    public void onScrolledRecyclerView(int dy, LinearLayout bottomTab, boolean isAnimationWorking, LinearLayoutManager lm) {
+        if (lm.findLastVisibleItemPosition() > adapter.COUNT_VISIBLY_ITEMS * 0.85) {
+            adapter.insertNextItems();
+        }
         if (dy > 0) {
             if ((bottomTab.getVisibility() == View.VISIBLE) & (isAnimationWorking == false)) {
                 mainView.hideBottomTab();
@@ -165,8 +129,7 @@ public class MainPresenterImpl implements DataLoadListener, MainPresenter {
     @Override
     public void onLoad(ArrayList<EarthQuake> data) {
         mydata = data;
-        onSortChange(sortFlag);
         mainView.hideProgress();
-        mainView.setItem(mydata);
+        onSortChange(sortFlag);
     }
 }
