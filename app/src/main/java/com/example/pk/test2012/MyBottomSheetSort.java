@@ -69,18 +69,18 @@ public class MyBottomSheetSort extends BottomSheetDialogFragment {
     public void onDismiss(DialogInterface dialog) {
         super.onDismiss(dialog);
         int sortRGCheckedId = sortRG.getCheckedRadioButtonId();
-        int toSort = 0;
+        int sortFlag = 0;
         SharedPreferences sPref = getActivity().getPreferences(MODE_PRIVATE);
         SharedPreferences.Editor ed = sPref.edit();
         if (sortRGCheckedId == R.id.radio_btn_sort_date) {
-            toSort = Constants.Sort_FLAG_DATE;
+            sortFlag = Constants.Sort_FLAG_DATE;
         } else if (sortRGCheckedId == R.id.radio_btn_sort_weak_first) {
-            toSort = Constants.SORT_FLAG_WEAK_FIRST;
+            sortFlag = Constants.SORT_FLAG_WEAK_FIRST;
         } else if (sortRGCheckedId == R.id.radio_btn_sort_powerful_first) {
-            toSort = Constants.SORT_FLAG_POWERFUL_FIRST;
+            sortFlag = Constants.SORT_FLAG_POWERFUL_FIRST;
         }
-        ed.putInt(Constants.SHAREDPREF_KEY_SORT, toSort);
+        ed.putInt(Constants.SHAREDPREF_KEY_SORT, sortFlag);
         ed.commit();
-        listener.OnSortChange(toSort);
+        listener.OnSortChange(sortFlag);
     }
 }

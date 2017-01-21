@@ -5,7 +5,6 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,42 +19,20 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-/**
- * Created by pk on 17.10.2016.
- */
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.MyViewHolder> {
     static ArrayList<EarthQuake> earthQuakesdata;
-
-    int COUNT_VISIBLY_ITEMS = 0;
     Context context;
     private static final String LOCATION_SEPERATOR = " of ";
-    RecyclerEvent.LongClickListener longClickListener;
+    RecyclerEvent longClickListener;
     SimpleDateFormat timeFormat;
     SimpleDateFormat dateFormat;
     DecimalFormat decimalFormat;
     Date dateObj;
 
-    public RecyclerViewAdapter(Context context, RecyclerEvent.LongClickListener longClickListener) {
+    public RecyclerViewAdapter(ArrayList<EarthQuake> earthQuakesdata, Context context, RecyclerEvent longClickListener) {
         this.context = context;
+        this.earthQuakesdata = earthQuakesdata;
         this.longClickListener = longClickListener;
-        earthQuakesdata = new ArrayList<>();
-    }
-
-    public void addItem(EarthQuake earthQuake) {
-        earthQuakesdata.add(earthQuake);
-        if (earthQuakesdata.size() < 200) {
-            notifyItemInserted(earthQuakesdata.size());
-        }
-        COUNT_VISIBLY_ITEMS = getItemCount();
-    }
-
-    public void insertNextItems() {
-        int count = COUNT_VISIBLY_ITEMS;
-        for (int i = count + 1; i < count + 100; i++) {
-            notifyItemInserted(i);
-            COUNT_VISIBLY_ITEMS++;
-        }
-        Log.d("tag", "Додано нові позиції.Тепер розмір адаптера =" + COUNT_VISIBLY_ITEMS);
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder implements View.OnLongClickListener {
@@ -139,13 +116,8 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     }
 
-    public static void clearData() {
-        earthQuakesdata.clear();
-    }
-
     @Override
     public int getItemCount() {
         return earthQuakesdata.size();
     }
 }
-

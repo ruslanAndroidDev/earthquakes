@@ -8,7 +8,7 @@ import android.util.Log;
 
 import com.example.pk.test2012.uttil.Constants;
 import com.example.pk.test2012.uttil.DataHelper;
-import com.example.pk.test2012.uttil.DataLoadListener;
+import com.example.pk.test2012.uttil.DataListener;
 import com.example.pk.test2012.uttil.Utiil;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -19,7 +19,7 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
 
-public class MapActivity extends AppCompatActivity implements OnMapReadyCallback, DataLoadListener {
+public class MapActivity extends AppCompatActivity implements OnMapReadyCallback, DataListener.DataLoading {
     GoogleMap map;
     SupportMapFragment mapFrag;
     Intent urlIntent;
@@ -31,7 +31,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_map);
         urlIntent = getIntent();
         String url = urlIntent.getStringExtra("url");
-        new DataHelper().loadDataWithListener(url, this);
+        new DataHelper().loadDataWithListener(url, (DataListener.DataLoading) this);
         mapFrag = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.mapactivity_map);
         mapFrag.getMapAsync(this);

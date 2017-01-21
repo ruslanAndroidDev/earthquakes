@@ -32,13 +32,15 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 
+import java.util.ArrayList;
+
 import me.wangyuwei.loadingview.LoadingView;
 import rm.com.longpresspopup.LongPressPopup;
 import rm.com.longpresspopup.LongPressPopupBuilder;
 import rm.com.longpresspopup.PopupInflaterListener;
 import rm.com.longpresspopup.PopupStateListener;
 
-public class MainActivity extends AppCompatActivity implements IMainView, RecyclerEvent.LongClickListener, View.OnClickListener, DialogListener.FiltrDialogListener, DialogListener.SortDialogListener, PopupInflaterListener, PopupStateListener, SwipeRefreshLayout.OnRefreshListener {
+public class MainActivity extends AppCompatActivity implements IMainView, RecyclerEvent, View.OnClickListener, DialogListener.FiltrDialogListener, DialogListener.SortDialogListener, PopupInflaterListener, PopupStateListener, SwipeRefreshLayout.OnRefreshListener {
     RecyclerView recyclerView;
     MainPresenterImpl presenter;
     LinearLayout bottomTab;
@@ -58,8 +60,6 @@ public class MainActivity extends AppCompatActivity implements IMainView, Recycl
     SwipeRefreshLayout swipeRefreshLayout;
     boolean isBottomTabShowing;
     int sortFlag = Constants.DEFAULT_SORT_FLAG;
-    RecyclerViewAdapter adapter;
-    LinearLayoutManager lm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,13 +100,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, Recycl
         presenter = new MainPresenterImpl(this, this);
         presenter.loadData(url, sortFlag);
 
-        adapter = new RecyclerViewAdapter(this, this);
-        presenter.setAdapter(adapter);
-
-        lm = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(lm);
-        lm.findLastVisibleItemPosition();
-        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
     @Override
@@ -119,7 +113,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, Recycl
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                presenter.onScrolledRecyclerView(dy, bottomTab, isAnimationWorking,lm);
+                presenter.onScrolledRecyclerView(dy, bottomTab, isAnimationWorking);
             }
         });
     }
@@ -185,15 +179,15 @@ public class MainActivity extends AppCompatActivity implements IMainView, Recycl
         popup_position = position;
     }
 
-//    @Override
-//    public void setItem(ArrayList<EarthQuake> data) {
-//        img_noNetwork.setVisibility(View.GONE);
-//        recyclerView.setVisibility(View.VISIBLE);
-//        recyclerView.setAdapter(new RecyclerViewAdapter(data, this, this));
-//        if (!isBottomTabShowing) {
-//            showBottomTab();
-//        }
-//    }
+    @Override
+    public void setItem(ArrayList<EarthQuake> data) {
+        img_noNetwork.setVisibility(View.GONE);
+        recyclerView.setVisibility(View.VISIBLE);
+        recyclerView.setAdapter(new RecyclerViewAdapter(data, this, this));
+        if (!isBottomTabShowing) {
+            showBottomTab();
+        }
+    }
 
     LongPressPopup mapPopup;
 

@@ -20,7 +20,7 @@ import java.util.ArrayList;
  * Created by pk on 22.12.2016.
  */
 public class DataHelper {
-    public void loadDataWithListener(String url, DataLoadListener listener) {
+    public void loadDataWithListener(String url, DataListener.DataLoading listener) {
         ParseTask parseTask = new ParseTask(listener);
         parseTask.execute(url);
     }
@@ -31,7 +31,7 @@ public class DataHelper {
         InputStream inputStream;
         String resultJson = "";
         URL url;
-        DataLoadListener listener;
+        DataListener.DataLoading listener;
         String PROPETRIES = "properties";
         String GEOMETRY = "geometry";
         String COORDINATES = "coordinates";
@@ -40,7 +40,7 @@ public class DataHelper {
         String FEATURES = "features";
         String TIME = "time";
 
-        public ParseTask(DataLoadListener listener) {
+        public ParseTask(DataListener.DataLoading listener) {
             this.listener = listener;
         }
 

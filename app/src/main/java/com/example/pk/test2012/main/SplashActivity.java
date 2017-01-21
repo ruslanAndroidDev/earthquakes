@@ -1,6 +1,5 @@
 package com.example.pk.test2012.main;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -55,12 +54,12 @@ public class SplashActivity extends AppCompatActivity {
 
     public void loadTutorial() {
         Intent mainAct = new Intent(this, MaterialTutorialActivity.class);
-        mainAct.putParcelableArrayListExtra(MaterialTutorialActivity.MATERIAL_TUTORIAL_ARG_TUTORIAL_ITEMS, getTutorialItems(this));
+        mainAct.putParcelableArrayListExtra(MaterialTutorialActivity.MATERIAL_TUTORIAL_ARG_TUTORIAL_ITEMS, getTutorialItems());
         startActivityForResult(mainAct, 2385);
 
     }
 
-    private ArrayList<TutorialItem> getTutorialItems(Context context) {
+    private ArrayList<TutorialItem> getTutorialItems() {
         TutorialItem tutorialItem1 = new TutorialItem((" EarthQuakes"), ("В цьому додатку ви можете дізнатися місце,час і потужність землетрусів які сталися цього місяця"),
                 R.color.magnitude3, R.mipmap.earthqukes);
 

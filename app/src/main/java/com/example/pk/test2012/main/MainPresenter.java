@@ -19,7 +19,7 @@ public interface MainPresenter {
 
     void onSortChange(int flag);
 
-    void onScrolledRecyclerView(int dy, LinearLayout bottomTab, boolean isAnimationWorking, LinearLayoutManager lm);
+    void onScrolledRecyclerView(int dy, LinearLayout bottomTab, boolean isAnimationWorking);
 
     void onFiltrChange(String newRequestUrl);
 }

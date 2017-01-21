@@ -3,33 +3,25 @@ package com.example.pk.test2012.main;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.support.v7.widget.LinearLayoutManager;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.example.pk.test2012.EarthQuake;
-import com.example.pk.test2012.uttil.Constants;
 import com.example.pk.test2012.uttil.DataHelper;
-import com.example.pk.test2012.uttil.DataLoadListener;
+import com.example.pk.test2012.uttil.DataListener;
 
 import java.util.ArrayList;
 
 /**
  * Created by pk on 24.12.2016.
  */
-public class MainPresenterImpl implements DataLoadListener, MainPresenter {
+public class MainPresenterImpl implements DataListener.DataLoading, DataListener.DataSorting, MainPresenter {
     IMainView mainView;
     String requestUrl = "m";
     Context context;
     ArrayList<EarthQuake> mydata;
     int sortFlag;
-
-    RecyclerViewAdapter adapter;
-
-    public void setAdapter(RecyclerViewAdapter adapter) {
-        this.adapter = adapter;
-    }
 
     public MainPresenterImpl(IMainView mainView, Context context) {
         this.mainView = mainView;
@@ -45,15 +37,10 @@ public class MainPresenterImpl implements DataLoadListener, MainPresenter {
         }
         if (isNetworkConection()) {
             if (newUrl.equals("")) {
-                if (requestUrl == null) {
-                    requestUrl = Constants.DEFAULT_URL_REQUEST;
-                    dataHelper.loadDataWithListener(requestUrl, this);
-                } else {
-                    dataHelper.loadDataWithListener(requestUrl, this);
-                }
-            } else if (!newUrl.equals(requestUrl)) {
-                requestUrl = newUrl;
+                dataHelper.loadDataWithListener(requestUrl, this);
+            } else {
                 dataHelper.loadDataWithListener(newUrl, this);
+                requestUrl = newUrl;
             }
         } else {
             mainView.showOffLineMessage();
@@ -62,7 +49,11 @@ public class MainPresenterImpl implements DataLoadListener, MainPresenter {
 
     @Override
     public void itemLongClick(int position) {
-        mainView.showPopupMap(position);
+        if (!isNetworkConection()) {
+            Toast.makeText(context, "No internet Conection", Toast.LENGTH_LONG).show();
+        } else {
+            mainView.showPopupMap(position);
+        }
     }
 
     @Override
@@ -86,18 +77,14 @@ public class MainPresenterImpl implements DataLoadListener, MainPresenter {
 
     @Override
     public void onSortChange(int flag) {
+        SortTask sortTask = new SortTask(mydata, this);
+        sortTask.execute(flag);
         sortFlag = flag;
-        RecyclerViewAdapter.clearData();
-        SortTask sortTask = new SortTask(adapter, mydata);
-        sortTask.execute(sortFlag);
     }
 
 
     @Override
-    public void onScrolledRecyclerView(int dy, LinearLayout bottomTab, boolean isAnimationWorking, LinearLayoutManager lm) {
-        if (lm.findLastVisibleItemPosition() > adapter.COUNT_VISIBLY_ITEMS * 0.85) {
-            adapter.insertNextItems();
-        }
+    public void onScrolledRecyclerView(int dy, LinearLayout bottomTab, boolean isAnimationWorking) {
         if (dy > 0) {
             if ((bottomTab.getVisibility() == View.VISIBLE) & (isAnimationWorking == false)) {
                 mainView.hideBottomTab();
@@ -113,7 +100,6 @@ public class MainPresenterImpl implements DataLoadListener, MainPresenter {
     public void onFiltrChange(String newRequestUrl) {
         if (!newRequestUrl.equals(requestUrl)) {
             mainView.showProgress();
-            RecyclerViewAdapter.clearData();
             dataHelper.loadDataWithListener(newRequestUrl, this);
             requestUrl = newRequestUrl;
         }
@@ -129,7 +115,12 @@ public class MainPresenterImpl implements DataLoadListener, MainPresenter {
     @Override
     public void onLoad(ArrayList<EarthQuake> data) {
         mydata = data;
-        mainView.hideProgress();
         onSortChange(sortFlag);
+    }
+
+    @Override
+    public void onSorted(ArrayList<EarthQuake> sortedData) {
+        mainView.hideProgress();
+        mainView.setItem(sortedData);
     }
 }
